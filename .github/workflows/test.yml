@@ -1,0 +1,49 @@
+name: Smart Contract CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'blockchain/**'
+      - '.github/workflows/test.yml'
+  pull_request:
+    branches:
+      - main
+      - master
+    paths:
+      - 'blockchain/**'
+      - '.github/workflows/test.yml'
+  workflow_dispatch:
+
+env:
+  FOUNDRY_PROFILE: ci
+
+jobs:
+  check:
+    name: Foundry Project
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./blockchain
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Show Forge version
+        run: forge --version
+
+      - name: Run Forge build
+        run: forge build --sizes
+        id: build
+
+      - name: Run Forge tests
+        run: forge test -vvv
+        id: test
