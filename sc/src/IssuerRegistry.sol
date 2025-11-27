@@ -1,12 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
+import {Ownable} from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
-/**
- * @title IssuerRegistry
- * @dev Kontrak untuk mendaftarkan Institusi/Penerbit resmi.
- */
 contract IssuerRegistry is Ownable {
     
     event IssuerAdded(address indexed issuer, string name);
