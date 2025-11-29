@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google"; // 1. Import font Inter
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { Web3Provider } from "@/provider/wallet";
 
-// 2. Konfigurasi font
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -18,10 +18,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      {/* 3. Gunakan inter.className disini */}
       <body className={inter.className}>
-        <Navbar />
-        {children}
+        <Web3Provider> {/* <-- Bungkus semuanya dengan ini */}
+          <Navbar />
+          {children}
+        </Web3Provider>
       </body>
     </html>
   );
