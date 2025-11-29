@@ -1,176 +1,97 @@
 "use client";
 
-import { useState } from "react";
-import { ethers } from "ethers";
-import { uploadFileToIPFS, uploadJSONToIPFS } from "@/utils/ipfs";
-import { CONTRACT_ADDRESS, CONTRACT_ABI } from "@/constants";
-import HybridToggle from "@/components/HybridToggle"; 
+import Link from "next/link";
+import { Upload, Search, Lock, CheckCircle, Wallet } from "lucide-react";
 
-// Deklarasi global biar TS gak marah
-declare global { interface Window { ethereum?: any; } }
+// Style Constants
+const cardStyle = `border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg bg-white p-6 transition-all hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]`;
+const buttonStyle = `flex items-center justify-center gap-2 px-6 py-3 font-bold text-black border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all`;
 
-export default function UploadPage() {
-  const [account, setAccount] = useState<string>("");
-  const [recipient, setRecipient] = useState<string>(""); 
-  const [file, setFile] = useState<File | null>(null);
-  const [form, setForm] = useState({ name: "", description: "" });
-  const [isSoulbound, setIsSoulbound] = useState<boolean>(true);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [status, setStatus] = useState<string>("");
-
-  // Koneksi Wallet
-  const connectWallet = async () => {
-    if (!window.ethereum) return alert("Install MetaMask dulu!");
-    try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const addr = await signer.getAddress();
-      setAccount(addr);
-      setRecipient(addr); 
-    } catch (error: any) { console.error(error); }
-  };
-
-  const switchWallet = async () => {
-    if (!window.ethereum) return;
-    try {
-      await window.ethereum.request({ method: "wallet_requestPermissions", params: [{ eth_accounts: {} }] });
-      connectWallet();
-    } catch (error) { console.log("Batal ganti akun"); }
-  };
-
-  const handleMint = async () => {
-    if (!file || !account || !recipient) return alert("Data belum lengkap!");
-    if (!ethers.isAddress(recipient)) return alert("Address Penerima Salah!");
-
-    setLoading(true);
-    setStatus("🚀 Memulai proses upload...");
-
-    try {
-      // 1. Upload ke IPFS
-      setStatus("📦 Mengupload dokumen ke IPFS...");
-      const fileCid = await uploadFileToIPFS(file);
-      
-      const metadata = {
-        name: form.name,
-        description: form.description,
-        image: fileCid,
-        attributes: [
-          { trait_type: "Type", value: isSoulbound ? "Soulbound (SBT)" : "Transferable (NFT)" },
-          { trait_type: "Issuer", value: account }
-        ]
-      };
-      
-      setStatus("📄 Membuat Metadata JSON...");
-      const metadataCid = await uploadJSONToIPFS(metadata);
-
-      // 2. Transaksi Blockchain
-      setStatus("🦊 Menunggu konfirmasi MetaMask...");
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-
-      let tx;
-      try {
-         // Coba Jalur Mitra
-         tx = await contract.mintOfficialDocument(recipient, metadataCid, isSoulbound);
-         setStatus("🏛️ Mencetak Dokumen Resmi (Verified)...");
-      } catch (err) {
-         console.log("Bukan Mitra, masuk jalur public...");
-         // Jalur Public
-         tx = await contract.mintPublicDocument(metadataCid, isSoulbound);
-         setStatus("👤 Mencetak Dokumen Pribadi (Self-Signed)...");
-      }
-
-      await tx.wait();
-      setStatus(`✅ SUKSES! Dokumen tercatat.`);
-      alert("Minting Berhasil!");
-
-    } catch (error: any) {
-      setStatus("❌ Gagal: " + (error.reason || error.message));
-    } finally {
-      setLoading(false);
-    }
-  };
-
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="bg-blue-600 px-6 py-4">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            📄 Upload & Terbitkan Dokumen
-          </h2>
-        </div>
+    <div className="min-h-screen bg-[#fdfdfd] pb-20 pt-8 font-sans text-slate-900">
+      <main className="mx-auto max-w-3xl px-4 space-y-12">
         
-        <div className="p-8">
-          {/* Wallet Control */}
-          <div className="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
-            {!account ? (
-              <button onClick={connectWallet} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">
-                Hubungkan Wallet
-              </button>
-            ) : (
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Terhubung sebagai:</p>
-                  <p className="text-sm font-mono font-bold text-gray-800">{account.slice(0,6)}...{account.slice(-4)}</p>
-                </div>
-                <button onClick={switchWallet} className="text-xs bg-white border border-gray-300 px-3 py-1 rounded-md hover:bg-gray-100 text-gray-700">
-                  Ganti Akun
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Form Input */}
-          <div className="space-y-5">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Wallet Penerima</label>
-              <input 
-                type="text" 
-                className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 font-mono"
-                placeholder="0x..."
-                value={recipient}
-                onChange={(e) => setRecipient(e.target.value)}
-              />
+        {/* Hero Section */}
+        <div className="relative overflow-hidden rounded-xl border-2 border-black bg-[#fbbf24] p-8 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+          {/* Hiasan background */}
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border-2 border-black bg-white opacity-20"></div>
+          <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full border-2 border-black bg-white opacity-20"></div>
+          
+          <div className="relative z-10 text-center">
+            <h1 className="mb-4 text-4xl font-black leading-tight tracking-tight text-black md:text-6xl">
+              Notaris Digital <br/> Terdesentralisasi.
+            </h1>
+            <p className="mx-auto mb-8 max-w-md font-bold text-black text-lg">
+              Amankan ijazah, sertifikat, dan aset digitalmu dengan kekuatan Blockchain Arbitrum & IPFS.
+            </p>
+            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+              <Link href="/upload" className={`${buttonStyle} bg-white hover:bg-gray-50`}>
+                <Upload size={20} /> Mulai Notarisasi
+              </Link>
+              <Link href="/verify" className={`${buttonStyle} bg-[#67e8f9] hover:brightness-110`}>
+                <Search size={20} /> Cek Keaslian
+              </Link>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Judul Dokumen</label>
-                    <input type="text" className="w-full border border-gray-300 rounded-lg p-3 text-sm text-gray-900" placeholder="Ijazah / Sertifikat" onChange={(e) => setForm({...form, name: e.target.value})} />
-                </div>
-                <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">File PDF</label>
-                    <input type="file" accept="application/pdf" className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)} />
-                </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Deskripsi</label>
-              <textarea className="w-full border border-gray-300 rounded-lg p-3 text-sm text-gray-900" rows={3} placeholder="Keterangan tambahan..." onChange={(e) => setForm({...form, description: e.target.value})} />
-            </div>
-
-            <div className="pt-2">
-               <label className="block text-sm font-bold text-gray-700 mb-2">Tipe Kepemilikan</label>
-               <HybridToggle isSoulbound={isSoulbound} setIsSoulbound={setIsSoulbound} />
-            </div>
-
-            <button 
-                onClick={handleMint} 
-                disabled={loading || !account} 
-                className={`w-full py-4 rounded-xl font-bold text-white text-lg transition shadow-lg ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'}`}
-            >
-              {loading ? "Sedang Memproses..." : "Cetak Dokumen Sekarang"}
-            </button>
-
-            {status && (
-                <div className={`mt-4 p-4 rounded-lg text-center text-sm font-medium ${status.includes("Gagal") ? "bg-red-50 text-red-700 border border-red-200" : "bg-blue-50 text-blue-700 border border-blue-200 animate-pulse"}`}>
-                  {status}
-                </div>
-            )}
           </div>
         </div>
-      </div>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className={cardStyle}>
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-black bg-[#67e8f9]">
+              <Lock size={24} className="text-black" />
+            </div>
+            <h3 className="mb-2 text-lg font-black">Hybrid Token</h3>
+            <p className="text-sm font-medium text-gray-600">
+              Pilih mode <b>Terkunci (SBT)</b> untuk Ijazah atau <b>Transferable (NFT)</b> untuk Tiket.
+            </p>
+          </div>
+
+          <div className={cardStyle}>
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-black bg-[#f472b6]">
+              <CheckCircle size={24} className="text-black" />
+            </div>
+            <h3 className="mb-2 text-lg font-black">Terverifikasi</h3>
+            <p className="text-sm font-medium text-gray-600">
+              Institusi resmi mendapat tanda <span className="inline-block rounded border border-black bg-blue-500 px-1 text-[10px] text-white">Centang Biru</span>. Anti palsu.
+            </p>
+          </div>
+
+          <div className={cardStyle}>
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-black bg-green-400">
+              <Wallet size={24} className="text-black" />
+            </div>
+            <h3 className="mb-2 text-lg font-black">Hemat Biaya</h3>
+            <p className="text-sm font-medium text-gray-600">
+              Data di IPFS, bukti di Arbitrum L2. Biaya gas super murah (&lt;Rp 500/dokumen).
+            </p>
+          </div>
+        </div>
+
+        {/* How it works */}
+        <div className="rounded-xl border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="mb-6 text-2xl font-black text-center">Cara Kerja Velipe</h2>
+          <div className="space-y-4">
+              <Step number="1" text="Hubungkan Wallet & Upload PDF ke IPFS" />
+              <Step number="2" text="Pilih Tipe: Permanen (SBT) atau Aset (NFT)" />
+              <Step number="3" text="Smart Contract mencatat 'Sidik Jari' dokumen" />
+              <Step number="4" text="Dokumen aman selamanya & mudah diverifikasi" />
+          </div>
+        </div>
+
+      </main>
     </div>
   );
+}
+
+function Step({ number, text }: { number: string; text: string }) {
+    return (
+        <div className="flex items-center gap-4 rounded-lg border-2 border-black bg-gray-50 p-3 hover:bg-yellow-50 transition-colors">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded border-2 border-black bg-black font-black text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)]">
+                {number}
+            </span>
+            <p className="font-bold text-sm">{text}</p>
+        </div>
+    )
 }
