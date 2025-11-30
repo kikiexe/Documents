@@ -7,7 +7,7 @@ import { Web3Provider } from "@/provider/wallet";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TrustChain - Platform Autentikasi",
+  title: "Velipe",
   description: "Verifikasi dokumen digital dengan Blockchain & IPFS",
 };
 

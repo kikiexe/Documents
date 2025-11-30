@@ -4,19 +4,20 @@ import React from "react";
 import {
   getDefaultConfig,
   RainbowKitProvider,
-  darkTheme,
   lightTheme,
 } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
-import { arbitrumSepolia } from "wagmi/chains";
+// UBAH DI SINI: Ganti import ke baseSepolia
+import { baseSepolia } from "wagmi/chains"; 
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import "@rainbow-me/rainbowkit/styles.css";
 
 const config = getDefaultConfig({
-  appName: "TrustChain App",
-  projectId: "YOUR_PROJECT_ID", // Dapatkan gratis di https://cloud.reown.com/ (dulu WalletConnect)
-  chains: [arbitrumSepolia],
-  ssr: true, // Penting buat Next.js
+  appName: "Velipe",
+  projectId: "071c0c56863052b8e8b516d3cd1669e9", 
+  // UBAH DI SINI: Masukkan baseSepolia ke array chains
+  chains: [baseSepolia], 
+  ssr: true,
 });
 
 const queryClient = new QueryClient();
@@ -27,7 +28,7 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider 
             theme={lightTheme({
-                accentColor: '#2563EB', // Warna Biru TrustChain
+                accentColor: '#2563EB',
                 borderRadius: 'medium',
             })}
         >

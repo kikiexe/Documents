@@ -33,7 +33,7 @@ export default function VerifyPage() {
       console.log("Calculated Hash:", docHash);
 
       // 2. Panggil Blockchain
-      const provider = new ethers.JsonRpcProvider("https://sepolia-rollup.arbitrum.io/rpc");
+      const provider = new ethers.JsonRpcProvider("https://sepolia.base.org");
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
 
       // Panggil fungsi verifyByHash dari Smart Contract
