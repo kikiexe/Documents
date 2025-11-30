@@ -20,10 +20,10 @@ export default function HomePage() {
           
           <div className="relative z-10 text-center">
             <h1 className="mb-4 text-4xl font-black leading-tight tracking-tight text-black md:text-6xl">
-              Notaris Digital <br/> Terdesentralisasi.
+              Notaris Digital <br/> Terdesentralisasi
             </h1>
             <p className="mx-auto mb-8 max-w-md font-bold text-black text-lg">
-              Amankan ijazah, sertifikat, dan aset digitalmu dengan kekuatan Blockchain Arbitrum & IPFS.
+              Amankan ijazah, sertifikat, dan aset digitalmu dengan kekuatan Blockchain Arbitrum & IPFS
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Link href="/upload" className={`${buttonStyle} bg-white hover:bg-gray-50`}>
@@ -44,7 +44,7 @@ export default function HomePage() {
             </div>
             <h3 className="mb-2 text-lg font-black">Hybrid Token</h3>
             <p className="text-sm font-medium text-gray-600">
-              Pilih mode <b>Terkunci (SBT)</b> untuk Ijazah atau <b>Transferable (NFT)</b> untuk Tiket.
+              Pilih mode <b>Terkunci (SBT)</b> untuk Ijazah atau <b>Transferable (NFT)</b> untuk Tiket
             </p>
           </div>
 
@@ -54,7 +54,7 @@ export default function HomePage() {
             </div>
             <h3 className="mb-2 text-lg font-black">Terverifikasi</h3>
             <p className="text-sm font-medium text-gray-600">
-              Institusi resmi mendapat tanda <span className="inline-block rounded border border-black bg-blue-500 px-1 text-[10px] text-white">Centang Biru</span>. Anti palsu.
+              Institusi resmi mendapat tanda <span className="inline-block rounded border border-black bg-blue-500 px-1 text-[10px] text-white">Centang Biru</span>. Anti palsu
             </p>
           </div>
 
@@ -64,7 +64,7 @@ export default function HomePage() {
             </div>
             <h3 className="mb-2 text-lg font-black">Hemat Biaya</h3>
             <p className="text-sm font-medium text-gray-600">
-              Data di IPFS, bukti di Arbitrum L2. Biaya gas super murah (&lt;Rp 500/dokumen).
+              Data di IPFS, bukti di Arbitrum L2. Biaya gas super murah (&lt;Rp 500/dokumen)
             </p>
           </div>
         </div>

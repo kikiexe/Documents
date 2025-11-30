@@ -1,5 +1,5 @@
 import React from "react";
-import { Lock, Globe } from "lucide-react";
+import { Lock, ArrowRightLeft } from "lucide-react";
 
 interface HybridToggleProps {
   isSoulbound: boolean;
@@ -33,7 +33,7 @@ export default function HybridToggle({ isSoulbound, setIsSoulbound }: HybridTogg
         className={`relative overflow-hidden rounded-lg border-2 border-black p-4 text-left transition-all ${!isSoulbound ? "bg-cyan-300 translate-x-[2px] translate-y-[2px] shadow-none" : inactiveClass}`}
       >
         <div className="flex items-center gap-2 mb-2">
-          <Globe size={20} />
+          <ArrowRightLeft size={20} />
           <span className="font-black text-sm">Transferable</span>
         </div>
         <p className="text-xs font-medium leading-tight">

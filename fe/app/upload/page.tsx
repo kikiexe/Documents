@@ -44,12 +44,22 @@ export default function UploadPage() {
     if (!recipient) return alert("Address penerima kosong!");
 
     setLoading(true);
-    setStatus("🚀 Menghitung Hash & Upload IPFS...");
     setSuccessTx("");
 
     try {
+      // 1. Signature Check (Gratis) - Mencegah upload spam ke IPFS jika user batal
+      setStatus("Mohon tanda tangani izin upload...");
+      const message = `Konfirmasi Upload Dokumen:\nNama File: ${file.name}\nTanggal: ${new Date().toLocaleString()}`;
+      
+      // Ini akan memunculkan popup Wallet (Sign Message). 
+      // Jika user reject, ini akan throw error dan masuk ke catch.
+      await signer.signMessage(message); 
+
+      // 2. Jika lolos signature, baru mulai proses berat
+      setStatus("Menghitung Hash & Upload IPFS...");
       const docHash = await calculateHash(file);
       setDocumentHash(docHash);
+      
       const fileCid = await uploadFileToIPFS(file);
       
       const metadata = {
@@ -63,31 +73,38 @@ export default function UploadPage() {
         ],
       };
       
-      setStatus("📄 Upload Metadata JSON...");
+      setStatus("Upload Metadata JSON...");
       const metadataCid = await uploadJSONToIPFS(metadata);
 
-      setStatus("🦊 Menunggu Tanda Tangan Wallet...");
+      setStatus("Menunggu Konfirmasi Transaksi Blockchain...");
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
       let tx;
       try {
+        // Coba mint sebagai Official (jika address terdaftar di whitelist)
         tx = await contract.mintOfficialDocument(recipient, metadataCid, isSoulbound, docHash);
-        setStatus("🏛️ Mencetak Dokumen Resmi (Verified Issuer)...");
+        setStatus("Mencetak Dokumen Resmi (Verified Issuer)...");
       } catch (err) {
         console.log("Not verified issuer, switching to public mint...");
+        // Fallback ke Public Mint jika gagal (bukan issuer resmi)
         tx = await contract.mintPublicDocument(metadataCid, isSoulbound, docHash);
-        setStatus("👤 Mencetak Dokumen Pribadi (Self-Signed)...");
+        setStatus("Mencetak Dokumen Pribadi (Self-Signed)...");
       }
 
-      setStatus("⏳ Menunggu Konfirmasi Blockchain...");
+      setStatus("Menunggu Konfirmasi Blockchain...");
       await tx.wait();
       
       setSuccessTx(tx.hash);
-      setStatus("✅ SUKSES! Dokumen tercatat.");
+      setStatus("SUKSES! Dokumen tercatat.");
       
     } catch (error: any) {
       console.error(error);
-      setStatus("❌ Gagal: " + (error.reason || error.message));
+      // Handle jika user menolak signature atau transaksi
+      if (error.code === 'ACTION_REJECTED' || error.info?.error?.code === 4001) {
+        setStatus("❌ Dibatalkan oleh pengguna.");
+      } else {
+        setStatus("❌ Gagal: " + (error.reason || error.message));
+      }
     } finally {
       setLoading(false);
     }

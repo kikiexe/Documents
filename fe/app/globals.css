@@ -5,6 +5,11 @@
   --foreground: #171717;
 }
 
+::selection {
+  background-color: #000000; /* Warna blok jadi Hitam */
+  color: #fbbf24;            /* Warna teks jadi Kuning Emas */
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
