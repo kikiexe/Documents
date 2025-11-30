@@ -97,7 +97,7 @@ export default function AdminPage() {
 
     try {
       const registry = new ethers.Contract(REGISTRY_ADDRESS, REGISTRY_ABI, signer);
-      const tx = await registry.removeIssuer(targetAddress);
+      const tx = await registry.setIssuerStatus(targetAddress, false);
       await tx.wait();
 
       setStatus("✅ Issuer berhasil dihapus!");

@@ -7,7 +7,7 @@ import {Ownable} from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
 interface IIssuerRegistry {
     function isIssuer(address _account) external view returns (bool);
-    function issuerNames(address _account) external view returns (string memory);
+    function getIssuerName(address _account) external view returns (string memory);
 }
 
 contract HybridDocument is ERC721, ERC721URIStorage, Ownable {
@@ -76,9 +76,8 @@ contract HybridDocument is ERC721, ERC721URIStorage, Ownable {
     function verifyByHash(bytes32 _hash) public view returns (bool exists, uint256 tokenId, address owner, address issuer, string memory issuerName, DocumentData memory data) {
         tokenId = hashToToken[_hash];
         
-        // Jika tokenId 0, berarti dokumen tidak ada (karena ID mulai dari 1)
         if (tokenId == 0) {
-            return (false, 0, address(0), address(0), "", documents[0]); // return empty struct
+            return (false, 0, address(0), address(0), "", documents[0]);
         }
         
         data = documents[tokenId];
@@ -86,7 +85,9 @@ contract HybridDocument is ERC721, ERC721URIStorage, Ownable {
         issuer = data.issuer;
         
         if (data.isVerified) {
-            issuerName = issuerRegistry.issuerNames(issuer);
+            // Panggil fungsi getIssuerName yang baru
+            // INI KUNCINYA: Walaupun issuer sudah isActive=false, namanya tetap bisa diambil!
+            issuerName = issuerRegistry.getIssuerName(issuer);
         } else {
             issuerName = "Self-Signed (Public)";
         }

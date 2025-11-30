@@ -205,4 +205,31 @@ contract HybridDocumentTest is Test {
         string memory uri = document.tokenURI(1);
         assertEq(uri, testUri);
     }
+
+    function testHistoricalDataPreservedAfterDeactivation() public {
+        // 1. Kampus Aktif menerbitkan Ijazah
+        vm.startPrank(verifiedIssuer);
+        document.mintOfficialDocument(recipient, testUri, true, testHash1);
+        vm.stopPrank();
+
+        // 2. Tiba-tiba Kampus Tutup / Izin Dicabut (Soft Delete)
+        // Admin menonaktifkan issuer
+        vm.startPrank(admin);
+        // Kita panggil setIssuerStatus (False)
+        registry.setIssuerStatus(verifiedIssuer, false);
+        vm.stopPrank();
+
+        // 3. Cek apakah Issuer sekarang bisa minting? (Harusnya GAGAL)
+        vm.startPrank(verifiedIssuer);
+        vm.expectRevert("Only verified issuers can mint official documents");
+        document.mintOfficialDocument(recipient, testUri, true, testHash2);
+        vm.stopPrank();
+
+        // 4. TAPI... Cek Ijazah LAMA (testHash1). Apakah namanya masih ada? (Harusnya ADA)
+        (,,,, string memory issuerName, ) = document.verifyByHash(testHash1);
+        
+        // Assert ini membuktikan bahwa nama "Universitas Amikom" TETAP MUNCUL
+        // meskipun statusnya sekarang sudah tidak aktif.
+        assertEq(issuerName, "Universitas Amikom");
+    }    
 }

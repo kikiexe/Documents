@@ -4,47 +4,62 @@ pragma solidity ^0.8.20;
 import {AccessControl} from "lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
 
 contract IssuerRegistry is AccessControl {
-    // Role untuk Admin (Bisa atur role lain)
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    // Role khusus untuk menambahkan Issuer baru (Bisa diberikan ke DAO/Komite di masa depan)
     bytes32 public constant GOVERNANCE_ROLE = keccak256("GOVERNANCE_ROLE");
 
-    event IssuerAdded(address indexed issuer, string name);
-    event IssuerRemoved(address indexed issuer);
+    // 1. Struct yang lebih robust (Sesuai ide kamu)
+    struct Issuer {
+        string name;
+        bool isActive;      // True = Boleh minting, False = Dibekukan
+        bool isRegistered;  // True = Pernah terdaftar (Datanya ada)
+    }
 
-    mapping(address => bool) public authorizedIssuers;
-    mapping(address => string) public issuerNames;
+    // 2. Mapping tunggal untuk menyimpan struct
+    mapping(address => Issuer) public issuers;
+
+    event IssuerAdded(address indexed issuer, string name);
+    event IssuerStatusChanged(address indexed issuer, bool isActive);
 
     constructor() {
-        // Berikan Deployer kedua role ini saat awal deploy
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(ADMIN_ROLE, msg.sender);
         _grantRole(GOVERNANCE_ROLE, msg.sender);
     }
 
-    // Hanya yang punya GOVERNANCE_ROLE yang boleh tambah kampus
-    // (Jawaban Sidang: "Role ini disiapkan untuk diserahkan ke DAO/MultiSig Dikti nanti")
+    // Fungsi Tambah / Update Issuer
     function addIssuer(address _issuer, string memory _name) external onlyRole(GOVERNANCE_ROLE) {
         require(_issuer != address(0), "Address tidak valid");
-        require(!authorizedIssuers[_issuer], "Issuer sudah terdaftar");
         require(bytes(_name).length > 0, "Nama tidak boleh kosong");
 
-        authorizedIssuers[_issuer] = true;
-        issuerNames[_issuer] = _name;
+        // Jika sudah terdaftar, kita hanya update data & aktifkan kembali
+        // Jika belum, kita buat baru
+        issuers[_issuer] = Issuer({
+            name: _name,
+            isActive: true,
+            isRegistered: true
+        });
 
         emit IssuerAdded(_issuer, _name);
+        emit IssuerStatusChanged(_issuer, true);
     }
 
-    function removeIssuer(address _issuer) external onlyRole(GOVERNANCE_ROLE) {
-        require(authorizedIssuers[_issuer], "Issuer tidak ditemukan");
+    // Fungsi Soft Delete (Hanya set isActive = false)
+    function setIssuerStatus(address _issuer, bool _status) external onlyRole(GOVERNANCE_ROLE) {
+        require(issuers[_issuer].isRegistered, "Issuer tidak ditemukan");
         
-        authorizedIssuers[_issuer] = false;
-        delete issuerNames[_issuer];
-
-        emit IssuerRemoved(_issuer);
+        issuers[_issuer].isActive = _status;
+        emit IssuerStatusChanged(_issuer, _status);
     }
 
+    // --- Helper Functions untuk HybridDocument ---
+
+    // Cek apakah boleh minting (Wajib Active)
     function isIssuer(address _account) external view returns (bool) {
-        return authorizedIssuers[_account];
+        return issuers[_account].isActive;
+    }
+
+    // Ambil nama (Walaupun sudah tidak aktif, nama tetap ada!)
+    function getIssuerName(address _account) external view returns (string memory) {
+        return issuers[_account].name;
     }
 }

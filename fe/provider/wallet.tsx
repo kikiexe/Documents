@@ -1,3 +1,4 @@
+// fe/provider/wallet.tsx
 "use client";
 
 import React from "react";
@@ -7,16 +8,15 @@ import {
   lightTheme,
 } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
-// UBAH DI SINI: Ganti import ke baseSepolia
+// GANTI KE BASE SEPOLIA
 import { baseSepolia } from "wagmi/chains"; 
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import "@rainbow-me/rainbowkit/styles.css";
 
 const config = getDefaultConfig({
   appName: "Velipe",
-  projectId: "071c0c56863052b8e8b516d3cd1669e9", 
-  // UBAH DI SINI: Masukkan baseSepolia ke array chains
-  chains: [baseSepolia], 
+  projectId: "071c0c56863052b8e8b516d3cd1669e9",
+  chains: [baseSepolia], // <-- GANTI INI
   ssr: true,
 });
 
