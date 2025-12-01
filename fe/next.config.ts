@@ -44,12 +44,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  
-  // 5. Bypass error ESLint saat build
-  // @ts-ignore
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
 };
 
 export default nextConfig;
