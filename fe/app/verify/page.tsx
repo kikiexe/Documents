@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ethers } from "ethers";
-import { CONTRACT_ADDRESS, CONTRACT_ABI } from "../../constants";
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from "@/constants";
 import { 
   Search, 
   CheckCircle, 

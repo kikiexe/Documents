@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { useAccount } from "wagmi";
-import { useEthersSigner } from "../../utils/ethers-adapter";
-import { uploadFileToIPFS, uploadJSONToIPFS } from "../../utils/ipfs"; 
-import { CONTRACT_ADDRESS, CONTRACT_ABI, REGISTRY_ADDRESS, REGISTRY_ABI } from "../../constants";
-import HybridToggle from "../../components/HybridToggle";
+import { useEthersSigner } from "@/utils/ethers-adapter";
+import { uploadFileToIPFS, uploadJSONToIPFS } from "@/utils/ipfs"; 
+import { CONTRACT_ADDRESS, CONTRACT_ABI, REGISTRY_ADDRESS, REGISTRY_ABI } from "@/constants";
+import HybridToggle from "@/components/HybridToggle";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Upload, FileText, X, CheckCircle, Loader2 } from "lucide-react";
 
