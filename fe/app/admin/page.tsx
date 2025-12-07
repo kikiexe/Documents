@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { useAccount } from "wagmi";
-import { useEthersSigner } from "@/utils/ethers-adapter";
-import { REGISTRY_ADDRESS, REGISTRY_ABI } from "@/constants";
+import { useEthersSigner } from "../../utils/ethers-adapter";
+import { REGISTRY_ADDRESS, REGISTRY_ABI } from "../../constants";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 // Role Hash dari Solidity (keccak256("GOVERNANCE_ROLE"))
