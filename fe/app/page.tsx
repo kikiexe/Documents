@@ -21,7 +21,7 @@ export default function HomePage() {
               Notaris Digital <br/> Terdesentralisasi
             </h1>
             <p className="mx-auto mb-8 max-w-md font-bold text-black text-lg">
-              Amankan ijazah, sertifikat, dan aset digitalmu dengan kekuatan Blockchain Arbitrum & IPFS
+              Amankan ijazah, sertifikat, dan aset digitalmu dengan kekuatan Blockchain Base & IPFS
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Link href="/upload" className={`${buttonStyle} bg-white hover:bg-gray-50`}>
@@ -62,7 +62,7 @@ export default function HomePage() {
             </div>
             <h3 className="mb-2 text-lg font-black">Hemat Biaya</h3>
             <p className="text-sm font-medium text-gray-600">
-              Data di IPFS, bukti di Arbitrum L2. Biaya gas super murah (&lt;Rp 500/dokumen)
+              Data di IPFS, bukti di Base L2. Biaya gas super murah (&lt;Rp 500/dokumen)
             </p>
           </div>
         </div>

@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Web3Provider> {/* <-- Bungkus semuanya dengan ini */}
+        <Web3Provider> 
           <Navbar/>
           {children}
         </Web3Provider>
